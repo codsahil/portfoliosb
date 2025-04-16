@@ -40,11 +40,6 @@ const NavBar = () => {
     { name: 'Tech Stack', href: '#tech-stack' },
     { name: 'Projects', href: '#projects' },
     { name: 'Contact', href: '#contact' },
-    { 
-      name: 'Resume',
-      href: 'https://www.linkedin.com/in/sahil-bonagiri-0a2916292/',
-      external: true 
-    },
   ];
 
   return (
@@ -68,10 +63,6 @@ const NavBar = () => {
                   key={item.name}
                   href={item.href}
                   className="nav-item"
-                  {...(item.external ? {
-                    target: "_blank",
-                    rel: "noopener noreferrer"
-                  } : {})}
                 >
                   {item.name}
                 </a>
@@ -112,10 +103,6 @@ const NavBar = () => {
                   href={item.href}
                   className="block px-3 py-2 rounded-md text-base font-medium hover:bg-secondary transition-colors"
                   onClick={() => setIsMenuOpen(false)}
-                  {...(item.external ? {
-                    target: "_blank",
-                    rel: "noopener noreferrer"
-                  } : {})}
                 >
                   {item.name}
                 </a>
