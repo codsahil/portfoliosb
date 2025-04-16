@@ -24,7 +24,7 @@ const About = () => {
             <div className="relative">
               <div className="w-64 h-64 rounded-full overflow-hidden border-4 border-primary/20">
                 <img
-                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=774&q=80"
+                  src="/lovable-uploads/6370a9ac-ffc3-4ac8-8ee4-9752407037be.png"
                   alt="Sahil Bonagiri"
                   className="w-full h-full object-cover"
                 />
