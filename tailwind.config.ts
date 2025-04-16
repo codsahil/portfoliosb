@@ -18,6 +18,11 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				sans: ['Inter', 'sans-serif'],
+				heading: ['Poppins', 'sans-serif'],
+				mono: ['Fira Code', 'monospace'],
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -61,6 +66,16 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				theme: {
+					blue: '#3b82f6',
+					indigo: '#6366f1',
+					purple: '#8b5cf6',
+					pink: '#ec4899',
+					orange: '#f97316',
+					green: '#10b981',
+					yellow: '#f59e0b',
+					red: '#ef4444',
 				}
 			},
 			borderRadius: {
