@@ -1,7 +1,9 @@
+
 import { ArrowDown } from 'lucide-react';
 import { Button } from './ui/button';
 import { useInView } from 'react-intersection-observer';
 import { Download } from 'lucide-react';
+import { toast } from './ui/use-toast';
 
 const Hero = () => {
   const { ref, inView } = useInView({
@@ -10,9 +12,17 @@ const Hero = () => {
   });
 
   const handleResumeClick = () => {
-    // You'll need to replace this URL with your actual resume URL once uploaded
-    const resumeUrl = "/path-to-your-resume.pdf";
+    // Using a public resume URL
+    const resumeUrl = "https://drive.google.com/file/d/1jxYmOClqCbz5oV4id0qTnPh3LonWVvL0/view";
+    
+    // Open in new tab
     window.open(resumeUrl, '_blank');
+    
+    // Show toast notification
+    toast({
+      title: "Opening Resume",
+      description: "Your resume is opening in a new tab",
+    });
   };
 
   return (
