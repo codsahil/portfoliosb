@@ -4,6 +4,7 @@ import { Star, GitFork, Github, ExternalLink } from 'lucide-react';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Skeleton } from './ui/skeleton';
+import { toast } from '@/hooks/use-toast';
 
 interface Repository {
   id: number;
@@ -26,27 +27,40 @@ const Projects = () => {
   useEffect(() => {
     const fetchRepos = async () => {
       try {
-        // Fetch specifically the portfolio repository first
-        const portfolioResponse = await fetch('https://api.github.com/repos/codsahil/sahil-bonagiri-portfolio-hub');
-        if (!portfolioResponse.ok) throw new Error('Failed to fetch portfolio repository');
-        const portfolioData = await portfolioResponse.json();
-        
-        // Then fetch other repositories
-        const reposResponse = await fetch('https://api.github.com/users/codsahil/repos?sort=updated&per_page=5');
+        // Fetch all repositories first
+        const reposResponse = await fetch('https://api.github.com/users/codsahil/repos?sort=updated&per_page=10');
         if (!reposResponse.ok) throw new Error('Failed to fetch repositories');
         const reposData = await reposResponse.json();
         
-        // Combine the portfolio with other repos, ensuring portfolio is first
-        const combinedRepos = [portfolioData, ...reposData.filter((repo: Repository) => 
-          repo.id !== portfolioData.id
-        )].slice(0, 6); // Keep only 6 repos total
+        // Try to find the portfolio repository in the list
+        const portfolioRepo = reposData.find((repo: Repository) => 
+          repo.name === 'sahil-bonagiri-portfolio-hub'
+        );
         
-        setRepos(combinedRepos);
+        // Create the final list with portfolio first if found
+        let finalRepos;
+        if (portfolioRepo) {
+          finalRepos = [
+            portfolioRepo, 
+            ...reposData.filter((repo: Repository) => repo.id !== portfolioRepo.id)
+          ].slice(0, 6); // Keep only 6 repos total
+        } else {
+          // If portfolio not found, just use the first 6 repos
+          finalRepos = reposData.slice(0, 6);
+        }
+        
+        setRepos(finalRepos);
         setIsLoading(false);
+        setError(null); // Clear any previous errors
       } catch (err) {
         console.error('Error fetching repositories:', err);
         setError('Failed to load projects. Please try again later.');
         setIsLoading(false);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to load GitHub projects. Please try again later.",
+        });
       }
     };
     
@@ -96,6 +110,28 @@ const Projects = () => {
         {error && (
           <div className="text-center p-8 bg-destructive/10 rounded-lg mb-8">
             <p className="text-destructive">{error}</p>
+            <Button 
+              variant="outline" 
+              className="mt-4"
+              onClick={() => {
+                setIsLoading(true);
+                setError(null);
+                // Re-fetch repositories
+                fetch('https://api.github.com/users/codsahil/repos?sort=updated&per_page=10')
+                  .then(res => res.json())
+                  .then(data => {
+                    setRepos(data.slice(0, 6));
+                    setIsLoading(false);
+                  })
+                  .catch(err => {
+                    console.error('Error retrying fetch:', err);
+                    setError('Failed to load projects. Please try again later.');
+                    setIsLoading(false);
+                  });
+              }}
+            >
+              Try Again
+            </Button>
           </div>
         )}
         
