@@ -26,14 +26,22 @@ const Projects = () => {
   useEffect(() => {
     const fetchRepos = async () => {
       try {
-        const response = await fetch('https://api.github.com/users/codsahil/repos?sort=updated&per_page=6');
+        // Fetch specifically the portfolio repository first
+        const portfolioResponse = await fetch('https://api.github.com/repos/codsahil/sahil-bonagiri-portfolio-hub');
+        if (!portfolioResponse.ok) throw new Error('Failed to fetch portfolio repository');
+        const portfolioData = await portfolioResponse.json();
         
-        if (!response.ok) {
-          throw new Error('Failed to fetch repositories');
-        }
+        // Then fetch other repositories
+        const reposResponse = await fetch('https://api.github.com/users/codsahil/repos?sort=updated&per_page=5');
+        if (!reposResponse.ok) throw new Error('Failed to fetch repositories');
+        const reposData = await reposResponse.json();
         
-        const data = await response.json();
-        setRepos(data);
+        // Combine the portfolio with other repos, ensuring portfolio is first
+        const combinedRepos = [portfolioData, ...reposData.filter((repo: Repository) => 
+          repo.id !== portfolioData.id
+        )].slice(0, 6); // Keep only 6 repos total
+        
+        setRepos(combinedRepos);
         setIsLoading(false);
       } catch (err) {
         console.error('Error fetching repositories:', err);
