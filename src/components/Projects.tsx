@@ -27,31 +27,46 @@ const Projects = () => {
   useEffect(() => {
     const fetchRepos = async () => {
       try {
-        // Fetch all repositories first
+        // First try to fetch the portfolio repository directly
+        const portfolioResponse = await fetch('https://api.github.com/repos/codsahil/sahil-bonagiri-portfolio-hub');
+        let portfolioRepo = null;
+        
+        if (portfolioResponse.ok) {
+          portfolioRepo = await portfolioResponse.json();
+        } else {
+          console.log('Portfolio repo not found, will try to find it in the list');
+        }
+        
+        // Then fetch all repositories
         const reposResponse = await fetch('https://api.github.com/users/codsahil/repos?sort=updated&per_page=10');
-        if (!reposResponse.ok) throw new Error('Failed to fetch repositories');
+        if (!reposResponse.ok) {
+          throw new Error(`Failed to fetch repositories: ${reposResponse.statusText}`);
+        }
+        
         const reposData = await reposResponse.json();
         
-        // Try to find the portfolio repository in the list
-        const portfolioRepo = reposData.find((repo: Repository) => 
-          repo.name === 'sahil-bonagiri-portfolio-hub'
-        );
+        // If we couldn't get the portfolio directly, try to find it in the list
+        if (!portfolioRepo) {
+          portfolioRepo = reposData.find((repo: Repository) => 
+            repo.name === 'sahil-bonagiri-portfolio-hub'
+          );
+        }
         
         // Create the final list with portfolio first if found
         let finalRepos;
         if (portfolioRepo) {
           finalRepos = [
-            portfolioRepo, 
-            ...reposData.filter((repo: Repository) => repo.id !== portfolioRepo.id)
+            portfolioRepo,
+            ...reposData.filter((repo: Repository) => repo.id !== portfolioRepo!.id)
           ].slice(0, 6); // Keep only 6 repos total
         } else {
-          // If portfolio not found, just use the first 6 repos
           finalRepos = reposData.slice(0, 6);
+          console.log('Portfolio repository not found in the list');
         }
         
         setRepos(finalRepos);
         setIsLoading(false);
-        setError(null); // Clear any previous errors
+        setError(null);
       } catch (err) {
         console.error('Error fetching repositories:', err);
         setError('Failed to load projects. Please try again later.');
@@ -59,7 +74,7 @@ const Projects = () => {
         toast({
           variant: "destructive",
           title: "Error",
-          description: "Failed to load GitHub projects. Please try again later.",
+          description: "Failed to load GitHub projects. Please refresh or try again later.",
         });
       }
     };
@@ -116,18 +131,43 @@ const Projects = () => {
               onClick={() => {
                 setIsLoading(true);
                 setError(null);
-                // Re-fetch repositories
-                fetch('https://api.github.com/users/codsahil/repos?sort=updated&per_page=10')
-                  .then(res => res.json())
-                  .then(data => {
-                    setRepos(data.slice(0, 6));
+                // Re-fetch repositories with the same logic as initial load
+                const fetchRepos = async () => {
+                  try {
+                    const portfolioResponse = await fetch('https://api.github.com/repos/codsahil/sahil-bonagiri-portfolio-hub');
+                    const reposResponse = await fetch('https://api.github.com/users/codsahil/repos?sort=updated&per_page=10');
+                    
+                    if (!reposResponse.ok) throw new Error('Failed to fetch repositories');
+                    
+                    let portfolioRepo = portfolioResponse.ok ? await portfolioResponse.json() : null;
+                    const reposData = await reposResponse.json();
+                    
+                    if (!portfolioRepo) {
+                      portfolioRepo = reposData.find((repo: Repository) => 
+                        repo.name === 'sahil-bonagiri-portfolio-hub'
+                      );
+                    }
+                    
+                    const finalRepos = portfolioRepo ? 
+                      [portfolioRepo, ...reposData.filter((repo: Repository) => repo.id !== portfolioRepo!.id)].slice(0, 6) :
+                      reposData.slice(0, 6);
+                    
+                    setRepos(finalRepos);
                     setIsLoading(false);
-                  })
-                  .catch(err => {
+                    setError(null);
+                  } catch (err) {
                     console.error('Error retrying fetch:', err);
                     setError('Failed to load projects. Please try again later.');
                     setIsLoading(false);
-                  });
+                    toast({
+                      variant: "destructive",
+                      title: "Error",
+                      description: "Failed to reload GitHub projects. Please refresh the page.",
+                    });
+                  }
+                };
+                
+                fetchRepos();
               }}
             >
               Try Again
