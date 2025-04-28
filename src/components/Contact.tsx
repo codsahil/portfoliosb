@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Mail, MapPin, Github, Linkedin, Twitter } from 'lucide-react';
 import { Input } from './ui/input';
@@ -92,7 +91,7 @@ const Contact = () => {
                   <Github className="h-5 w-5" />
                 </a>
                 <a 
-                  href="https://www.linkedin.com/in/sahil-bonagiri" 
+                  href="https://www.linkedin.com/in/sahil-bonagiri/" 
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center hover:bg-primary/20 transition-colors"
